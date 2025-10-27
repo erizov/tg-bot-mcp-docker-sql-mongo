@@ -1,0 +1,289 @@
+{
+  "test_info": {
+    "timestamp": "2025-10-27T21:31:40.766610",
+    "total_execution_time": 15.752328634262085,
+    "test_config": {
+      "notes_count": 100,
+      "search_queries": [
+        "test",
+        "note",
+        "important"
+      ],
+      "reminder_hours": 24,
+      "performance_iterations": 3
+    },
+    "backends_tested": [
+      "sqlite",
+      "progress",
+      "mongo",
+      "neo4j",
+      "postgresql"
+    ]
+  },
+  "summary": {
+    "total_backends": 5,
+    "successful_backends": 5,
+    "failed_backends": 0
+  },
+  "performance_comparison": {},
+  "detailed_results": {
+    "sqlite": {
+      "backend": "sqlite",
+      "status": "success",
+      "timestamp": "2025-10-27T21:31:25.040756",
+      "tests": {
+        "crud": {
+          "status": "failed",
+          "operations": {
+            "create": {
+              "success": true,
+              "note_id": 1
+            }
+          },
+          "error": "'NotesDatabase' object has no attribute 'get_note'"
+        },
+        "search": {
+          "status": "success",
+          "searches": {
+            "test": {
+              "success": true,
+              "results_count": 1,
+              "results": [
+                [
+                  1,
+                  "E2E Test Note",
+                  "This is a test note for E2E testing",
+                  null,
+                  "2025-10-27 18:31:25"
+                ]
+              ]
+            },
+            "note": {
+              "success": true,
+              "results_count": 2,
+              "results": [
+                [
+                  1,
+                  "E2E Test Note",
+                  "This is a test note for E2E testing",
+                  null,
+                  "2025-10-27 18:31:25"
+                ],
+                [
+                  5,
+                  "Personal Note",
+                  "Remember to call mom",
+                  null,
+                  "2025-10-27 18:31:25"
+                ]
+              ]
+            },
+            "important": {
+              "success": true,
+              "results_count": 2,
+              "results": [
+                [
+                  2,
+                  "Important Meeting",
+                  "Meeting with client about project",
+                  null,
+                  "2025-10-27 18:31:25"
+                ],
+                [
+                  4,
+                  "Important Deadline",
+                  "Project deadline approaching",
+                  null,
+                  "2025-10-27 18:31:25"
+                ]
+              ]
+            }
+          }
+        },
+        "reminders": {
+          "status": "success",
+          "reminders": {
+            "upcoming": {
+              "success": true,
+              "count": 1,
+              "reminders": [
+                [
+                  6,
+                  "E2E Reminder Test",
+                  "This is a test reminder",
+                  "2025-10-27T22:31:25.217562",
+                  "2025-10-27 18:31:25"
+                ]
+              ]
+            }
+          }
+        },
+        "performance": {
+          "status": "failed",
+          "benchmarks": {
+            "insert": {
+              "success": true,
+              "time": 1.9397833347320557,
+              "notes_count": 100,
+              "notes_per_second": 51.552149257851575
+            }
+          },
+          "error": "'NotesDatabase' object has no attribute 'get_note'"
+        },
+        "statistics": {
+          "status": "success",
+          "stats": {
+            "success": true,
+            "statistics": {
+              "total_notes": 104,
+              "notes_with_reminders": 1,
+              "notes_without_reminders": 103,
+              "recent_notes": 104
+            }
+          }
+        }
+      },
+      "execution_time": 2.275200128555298
+    },
+    "progress": {
+      "backend": "progress",
+      "status": "success",
+      "timestamp": "2025-10-27T21:31:27.299459",
+      "tests": {
+        "crud": {
+          "status": "failed",
+          "operations": {
+            "create": {
+              "success": true,
+              "note_id": "14b98140-afc1-4cdf-8761-8ec25e3797e9"
+            }
+          },
+          "error": "'NotesDatabaseProgress' object has no attribute 'get_note'"
+        },
+        "search": {
+          "status": "success",
+          "searches": {
+            "test": {
+              "success": true,
+              "results_count": 1,
+              "results": [
+                {
+                  "id": "14b98140-afc1-4cdf-8761-8ec25e3797e9",
+                  "title": "E2E Test Note",
+                  "content": "This is a test note for E2E testing",
+                  "due_at": null,
+                  "created_at": "2025-10-27T21:31:27.300591"
+                }
+              ]
+            },
+            "note": {
+              "success": true,
+              "results_count": 2,
+              "results": [
+                {
+                  "id": "e744bc24-50fc-48e7-af22-24365e728371",
+                  "title": "Personal Note",
+                  "content": "Remember to call mom",
+                  "due_at": null,
+                  "created_at": "2025-10-27T21:31:27.308628"
+                },
+                {
+                  "id": "14b98140-afc1-4cdf-8761-8ec25e3797e9",
+                  "title": "E2E Test Note",
+                  "content": "This is a test note for E2E testing",
+                  "due_at": null,
+                  "created_at": "2025-10-27T21:31:27.300591"
+                }
+              ]
+            },
+            "important": {
+              "success": true,
+              "results_count": 2,
+              "results": [
+                {
+                  "id": "a3850281-975f-4258-a60a-f9414c631a46",
+                  "title": "Important Deadline",
+                  "content": "Project deadline approaching",
+                  "due_at": null,
+                  "created_at": "2025-10-27T21:31:27.307773"
+                },
+                {
+                  "id": "0dc36789-30d7-4638-8d0a-b04b895a635c",
+                  "title": "Important Meeting",
+                  "content": "Meeting with client about project",
+                  "due_at": null,
+                  "created_at": "2025-10-27T21:31:27.301743"
+                }
+              ]
+            }
+          }
+        },
+        "reminders": {
+          "status": "success",
+          "reminders": {
+            "upcoming": {
+              "success": true,
+              "count": 1,
+              "reminders": [
+                {
+                  "id": "485430ae-fb74-42d0-b51f-e353f8a7cf13",
+                  "title": "E2E Reminder Test",
+                  "content": "This is a test reminder",
+                  "due_at": "2025-10-27T22:31:27.315943",
+                  "created_at": "2025-10-27T21:31:27.316005"
+                }
+              ]
+            }
+          }
+        },
+        "performance": {
+          "status": "failed",
+          "benchmarks": {
+            "insert": {
+              "success": true,
+              "time": 0.0778501033782959,
+              "notes_count": 100,
+              "notes_per_second": 1284.5198100003981
+            }
+          },
+          "error": "'NotesDatabaseProgress' object has no attribute 'get_note'"
+        },
+        "statistics": {
+          "status": "success",
+          "stats": {
+            "success": true,
+            "statistics": {
+              "total_notes": 104,
+              "notes_with_reminders": 1,
+              "notes_without_reminders": 103,
+              "recent_notes": 104
+            }
+          }
+        }
+      },
+      "execution_time": 0.10342526435852051
+    },
+    "mongo": {
+      "backend": "mongo",
+      "status": "success",
+      "timestamp": "2025-10-27T21:31:27.434447",
+      "tests": {
+        "crud": {
+          "status": "failed",
+          "operations": {
+            "create": {
+              "success": true,
+              "note_id": "68ffba7f3a4a98f59a2a9f73"
+            }
+          },
+          "error": "'NotesDatabaseMongo' object has no attribute 'get_note'"
+        },
+        "search": {
+          "status": "success",
+          "searches": {
+            "test": {
+              "success": true,
+              "results_count": 10,
+              "results": [
+                {
+                  "_id": 

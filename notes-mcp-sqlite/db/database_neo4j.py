@@ -182,8 +182,9 @@ class NotesDatabaseNeo4j:
         with self.driver.session() as session:
             result = session.run("""
                 MATCH (n:Note {id: $id})
+                WITH n, n.id as id
                 DELETE n
-                RETURN n.id as id
+                RETURN id
             """, {"id": note_id})
 
             return result.single() is not None

@@ -11,7 +11,7 @@ import uuid
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from typing import Optional, List, Dict, Any
-from datetime import datetime
+from datetime import datetime, timedelta
 
 
 logger = logging.getLogger("notes_bot")
@@ -178,15 +178,18 @@ class NotesDatabasePostgreSQL:
 
     def get_upcoming_reminders(self, hours: int = 24) -> List[Dict[str, Any]]:
         """Get upcoming reminders."""
+        now = datetime.now()
+        future_time = now + timedelta(hours=hours)
+        
         with self.connection.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute("""
                 SELECT id, title, content, due_at, created_at
                 FROM notes
                 WHERE due_at IS NOT NULL
-                  AND due_at >= CURRENT_TIMESTAMP
-                  AND due_at <= CURRENT_TIMESTAMP + INTERVAL '%s hours'
+                  AND due_at >= %s
+                  AND due_at <= %s
                 ORDER BY due_at ASC
-            """, (hours,))
+            """, (now, future_time))
 
             return [dict(row) for row in cursor.fetchall()]
 

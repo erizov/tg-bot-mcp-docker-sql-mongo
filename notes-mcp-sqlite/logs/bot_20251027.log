@@ -1,1 +1,3 @@
 2025-10-27 13:01:28,693 - notes_bot - INFO - Selected DB backend: sqlite
+2025-10-27 21:14:08,360 - notes_bot - INFO - Selected DB backend: sqlite
+2025-10-27 21:14:08,366 - notes_bot - INFO - Database initialized successfully
