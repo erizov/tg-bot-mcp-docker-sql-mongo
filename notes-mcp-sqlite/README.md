@@ -1,6 +1,6 @@
-[![Python](https://img.shields.io/badge/python-3.8+-blue?logo=python)](https://python.org) [![Docker](https://img.shields.io/badge/docker-ready-blue?logo=docker)](https://www.docker.com/) [![Tested DBs](https://img.shields.io/badge/DBs-SQLite--Progress--Mongo-green?logo=mongodb)](#бэкенды-баз-данных)
+[![Python](https://img.shields.io/badge/python-3.8+-blue?logo=python)](https://python.org) [![Docker](https://img.shields.io/badge/docker-ready-blue?logo=docker)](https://www.docker.com/) [![Tested DBs](https://img.shields.io/badge/DBs-SQLite--Progress--Mongo--Neo4j--ProgressServer-green?logo=mongodb)](#бэкенды-баз-данных)
 
-# Телеграм-бот заметок + напоминаний (SQLite/Mongo/Progress)
+# Телеграм-бот заметок + напоминаний (SQLite/Mongo/Neo4j/Progress)
 
 **[🇷🇺 Русский README ниже]**
 
@@ -8,7 +8,7 @@
 
 ## 🚩 Features
 - Telegram bot for notes & reminders
-- Hot-swap DB: SQLite, MongoDB (Docker), In-memory (Progress)
+- Hot-swap DB: SQLite, MongoDB (Docker), Neo4j (Docker), In-memory (Progress), Progress Server
 - Dockerized stack, easy Compose up
 - Unit, integration, and load test coverage
 - FastAPI REST DB monitoring (see `/count/html` dashboard)
@@ -309,17 +309,31 @@ python clean_test_logs.py
 - **SQLite** (файл `notes.db`)
 - **Progress (In-Memory)** — RAM only, не сохраняет данные между перезапусками
 - **MongoDB** (поддерживается через docker, используется MCP и отдельные сервисы)
+- **Neo4j** (графовая БД через docker, поддерживает связи между заметками)
+- **Progress Server** (HTTP API сервер для внешних систем)
 
 Переключение осуществляется переменной окружения:
 ```bash
 set USE_DB_BACKEND=sqlite
 set USE_DB_BACKEND=progress
 set USE_DB_BACKEND=mongo
+set USE_DB_BACKEND=neo4j
+set USE_DB_BACKEND=progress_server
 ```
 
 Для MongoDB требуется установленный и запущенный контейнер:
 ```bash
 docker compose -f mongo.docker-compose.yml up -d
+```
+
+Для Neo4j требуется установленный и запущенный контейнер:
+```bash
+docker compose -f neo4j.docker-compose.yml up -d
+```
+
+Для Progress Server требуется установленный и запущенный контейнер:
+```bash
+docker compose -f progress-server.docker-compose.yml up -d
 ```
 
 ---
@@ -341,11 +355,13 @@ python report_perf.py
 После завершения откройте файл `test/db_perf_report.html` в браузере.
 
 #### Пример таблицы отчёта:
-| Backend  | Insert time (s, 500 rec) | Lookup time (s) | Total notes |
-|----------|--------------------------|-----------------|-------------|
-| sqlite   | 14.51                    | 2.07            | 1500        |
-| progress | 12.90                    | 2.47            | 2000        |
-| mongo    | 14.65                    | 1.18            | 2500        |
+| Backend         | Insert time (s, 500 rec) | Lookup time (s) | Total notes |
+|-----------------|--------------------------|-----------------|-------------|
+| sqlite          | 14.51                    | 2.07            | 1500        |
+| progress        | 12.90                    | 2.47            | 2000        |
+| mongo           | 14.65                    | 1.18            | 2500        |
+| neo4j           | 16.23                    | 1.45            | 2500        |
+| progress_server | 18.12                    | 2.89            | 2500        |
 
 ### 3. Логирование тестов
 - Детально логируются ошибки, время вставки/чтения, статистика вставленных заметок и очистка после теста.

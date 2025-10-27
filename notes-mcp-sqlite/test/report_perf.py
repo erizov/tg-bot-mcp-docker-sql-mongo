@@ -20,6 +20,18 @@ try:
 except ImportError:
     logger.warning("MongoDB backend skipped (pymongo not installed)")
 
+try:
+    import neo4j  # noqa: F401
+    BACKENDS.append("neo4j")
+except ImportError:
+    logger.warning("Neo4j backend skipped (neo4j driver not installed)")
+
+try:
+    import requests  # noqa: F401
+    BACKENDS.append("progress_server")
+except ImportError:
+    logger.warning("Progress server backend skipped (requests not installed)")
+
 COUNT = 500  # manageable for perf in dev
 
 
