@@ -38,11 +38,11 @@ if not logger.hasHandlers():
 
 class NotesDatabase:
     """Класс для работы с базой данных заметок."""
-    
+
     def __init__(self, db_path: str):
         self.db_path = db_path
         self._init_db()
-    
+
     def _init_db(self) -> None:
         """Инициализация базы данных."""
         conn = sqlite3.connect(self.db_path)
@@ -61,7 +61,7 @@ class NotesDatabase:
         conn.commit()
         conn.close()
         logger.info("Database initialized successfully")
-    
+
     def add_note(self, title: str, content: str, due_at: Optional[str] = None) -> int:
         """Добавляет новую заметку."""
         conn = sqlite3.connect(self.db_path)
@@ -78,7 +78,7 @@ class NotesDatabase:
         conn.close()
         logger.info(f"Note added: ID={note_id}, Title='{title}', Due={due_at}")
         return note_id
-    
+
     def delete_note(self, note_id: int) -> bool:
         """Удаляет заметку по ID."""
         conn = sqlite3.connect(self.db_path)
@@ -96,7 +96,7 @@ class NotesDatabase:
             logger.info(f"Note deleted: ID={note_id}")
             return True
         return False
-    
+
     def search_notes(self, query: str, limit: int = 10) -> List[Tuple]:
         """Ищет заметки по содержимому."""
         conn = sqlite3.connect(self.db_path)
@@ -116,7 +116,7 @@ class NotesDatabase:
         conn.close()
         logger.info(f"Search performed: query='{query}', results={len(results)}")
         return results
-    
+
     def get_note_by_id(self, note_id: int) -> Optional[Tuple]:
         """Получает заметку по ID."""
         conn = sqlite3.connect(self.db_path)
@@ -132,7 +132,7 @@ class NotesDatabase:
         result = cursor.fetchone()
         conn.close()
         return result
-    
+
     def get_recent_notes(self, limit: int = 5) -> List[Tuple]:
         """Получает последние заметки."""
         conn = sqlite3.connect(self.db_path)
@@ -149,7 +149,7 @@ class NotesDatabase:
         notes = cursor.fetchall()
         conn.close()
         return notes
-    
+
     def get_upcoming_reminders(self, hours: int = 24) -> List[Tuple]:
         """Получает напоминания на ближайшие часы."""
         conn = sqlite3.connect(self.db_path)
@@ -169,7 +169,7 @@ class NotesDatabase:
         reminders = cursor.fetchall()
         conn.close()
         return reminders
-    
+
     def get_stats(self) -> dict:
         """Получает статистику по заметкам."""
         conn = sqlite3.connect(self.db_path)

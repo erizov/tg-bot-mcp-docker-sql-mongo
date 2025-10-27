@@ -24,6 +24,7 @@ except ImportError as e:
     logger.error(f"Failed to import DB backend '{USE_DB_BACKEND}': {e}")
     raise
 
+
 def get_database(*args, **kwargs) -> Any:
     """
     Factory method for environment-driven NotesDB backend selection.

@@ -11,15 +11,15 @@ from pathlib import Path
 def create_database():
     """Создает базу данных и таблицу notes с тестовыми данными."""
     db_path = Path("notes.db")
-    
+
     # Удаляем существующую БД если есть
     if db_path.exists():
         db_path.unlink()
-    
+
     # Создаем новую БД
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
-    
+
     # Создаем таблицу notes
     cursor.execute("""
         CREATE TABLE notes (
@@ -30,7 +30,7 @@ def create_database():
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )
     """)
-    
+
     # Добавляем тестовые данные
     test_notes = [
         ("Важная встреча", "Встреча с клиентом в 15:00", "2024-01-15 15:00:00"),
@@ -44,16 +44,16 @@ def create_database():
         ("Встреча с командой", "Еженедельный стендап", "2024-01-17 09:00:00"),
         ("Купить подарок", "День рождения друга", "2024-01-18 12:00:00"),
     ]
-    
+
     for title, content, due_at in test_notes:
         cursor.execute("""
             INSERT INTO notes (title, content, due_at)
             VALUES (?, ?, ?)
         """, (title, content, due_at))
-    
+
     conn.commit()
     conn.close()
-    
+
     print(f"Database created: {db_path.absolute()}")
     print(f"Added {len(test_notes)} test records")
 

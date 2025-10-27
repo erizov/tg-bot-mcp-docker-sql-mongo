@@ -13,7 +13,7 @@ logger = logging.getLogger("perf_report")
 
 BACKENDS = ["sqlite", "progress"]
 try:
-    import pymongo
+    import pymongo  # noqa: F401
     BACKENDS.append("mongo")
 except ImportError:
     logger.warning("MongoDB backend skipped (pymongo not installed)")
