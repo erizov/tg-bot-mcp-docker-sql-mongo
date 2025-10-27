@@ -1,4 +1,4 @@
-# Main Dockerfile - defaults to SQLite backend
+# Dockerfile for MongoDB backend
 FROM python:3.11-slim
 
 WORKDIR /app
@@ -15,8 +15,10 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy application code
 COPY notes-mcp-sqlite/ .
 
-# Set default environment variables (can be overridden)
-ENV USE_DB_BACKEND=sqlite
+# Set environment variables for MongoDB
+ENV USE_DB_BACKEND=mongo
+ENV MONGODB_URI=mongodb://mongo:27017
+ENV MONGODB_DB=notes_db
 ENV PYTHONPATH=/app
 
 # Expose port for monitoring

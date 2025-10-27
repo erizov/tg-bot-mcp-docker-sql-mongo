@@ -1,4 +1,4 @@
-# Main Dockerfile - defaults to SQLite backend
+# Dockerfile for PostgreSQL backend
 FROM python:3.11-slim
 
 WORKDIR /app
@@ -15,8 +15,13 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy application code
 COPY notes-mcp-sqlite/ .
 
-# Set default environment variables (can be overridden)
-ENV USE_DB_BACKEND=sqlite
+# Set environment variables for PostgreSQL
+ENV USE_DB_BACKEND=postgresql
+ENV POSTGRESQL_HOST=postgresql
+ENV POSTGRESQL_PORT=5432
+ENV POSTGRESQL_DB=notes_db
+ENV POSTGRESQL_USER=postgres
+ENV POSTGRESQL_PASSWORD=password
 ENV PYTHONPATH=/app
 
 # Expose port for monitoring

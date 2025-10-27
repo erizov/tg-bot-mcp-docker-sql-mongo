@@ -121,9 +121,14 @@ jobs:
         with:
           name: db_perf_report_py${{ matrix.python-version }}
           path: notes-mcp-sqlite/test/db_perf_report.html
-      - name: Build Docker image
+      - name: Build Docker images for all backends
         run: |
-          docker build -t tg-notes-bot:ci -f Dockerfile .
+          docker build -t tg-notes-bot:sqlite -f dockerfiles/Dockerfile.sqlite .
+          docker build -t tg-notes-bot:mongo -f dockerfiles/Dockerfile.mongo .
+          docker build -t tg-notes-bot:neo4j -f dockerfiles/Dockerfile.neo4j .
+          docker build -t tg-notes-bot:postgresql -f dockerfiles/Dockerfile.postgresql .
+          docker build -t tg-notes-bot:progress -f dockerfiles/Dockerfile.progress .
+          docker build -t tg-notes-bot:progress-server -f dockerfiles/Dockerfile.progress-server .
       - name: FastAPI Monitor smoke test
         run: |
           pip install httpx

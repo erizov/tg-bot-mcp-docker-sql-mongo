@@ -1,4 +1,4 @@
-# Main Dockerfile - defaults to SQLite backend
+# Dockerfile for Progress Server backend
 FROM python:3.11-slim
 
 WORKDIR /app
@@ -15,8 +15,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy application code
 COPY notes-mcp-sqlite/ .
 
-# Set default environment variables (can be overridden)
-ENV USE_DB_BACKEND=sqlite
+# Set environment variables for Progress Server
+ENV USE_DB_BACKEND=progress_server
+ENV PROGRESS_SERVER_URL=http://progress-server:8080
 ENV PYTHONPATH=/app
 
 # Expose port for monitoring

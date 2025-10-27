@@ -1,4 +1,4 @@
-# Main Dockerfile - defaults to SQLite backend
+# Dockerfile for Neo4j backend
 FROM python:3.11-slim
 
 WORKDIR /app
@@ -15,8 +15,11 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy application code
 COPY notes-mcp-sqlite/ .
 
-# Set default environment variables (can be overridden)
-ENV USE_DB_BACKEND=sqlite
+# Set environment variables for Neo4j
+ENV USE_DB_BACKEND=neo4j
+ENV NEO4J_URI=bolt://neo4j:7687
+ENV NEO4J_USER=neo4j
+ENV NEO4J_PASSWORD=password
 ENV PYTHONPATH=/app
 
 # Expose port for monitoring

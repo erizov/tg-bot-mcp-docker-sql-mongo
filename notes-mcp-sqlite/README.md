@@ -61,6 +61,38 @@ python bot.py
 
 ---
 
+# 🐳 Специализированные Dockerfiles
+
+В папке `dockerfiles/` находятся специализированные Dockerfiles для каждого backend:
+
+- **`Dockerfile.sqlite`** - SQLite backend (по умолчанию)
+- **`Dockerfile.mongo`** - MongoDB backend
+- **`Dockerfile.neo4j`** - Neo4j backend
+- **`Dockerfile.postgresql`** - PostgreSQL backend
+- **`Dockerfile.progress`** - Progress (in-memory) backend
+- **`Dockerfile.progress-server`** - Progress Server backend
+
+### Примеры использования:
+
+```bash
+# SQLite (по умолчанию)
+docker build -f dockerfiles/Dockerfile.sqlite -t tg-notes-bot:sqlite .
+
+# MongoDB
+docker compose -f mongo.docker-compose.yml up -d
+docker build -f dockerfiles/Dockerfile.mongo -t tg-notes-bot:mongo .
+docker run -p 8001:8001 --network neuroqc-net tg-notes-bot:mongo
+
+# PostgreSQL
+docker compose -f postgresql.docker-compose.yml up -d
+docker build -f dockerfiles/Dockerfile.postgresql -t tg-notes-bot:postgresql .
+docker run -p 8001:8001 --network neuroqc-net tg-notes-bot:postgresql
+```
+
+Подробная документация: [dockerfiles/README.md](../dockerfiles/README.md)
+
+---
+
 # 📦 Быстрое переключение backend и запрос
 ```python
 import os
