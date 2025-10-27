@@ -96,8 +96,8 @@ class MongoDBTestCase(unittest.TestCase):
         self.assertGreaterEqual(stats["total_notes"], 2)
 
     def test_reminders(self):
-        now = datetime.now().isoformat()
-        self.db.add_note("MongoRemind", "remind", due_at=now)
+        due_time = (datetime.now() + timedelta(seconds=10)).isoformat()
+        self.db.add_note("MongoRemind", "remind", due_at=due_time)
         reminders = self.db.get_upcoming_reminders(1)
         self.assertTrue(any(n["title"] == "MongoRemind" for n in reminders))
 
