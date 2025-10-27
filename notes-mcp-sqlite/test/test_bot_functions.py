@@ -8,9 +8,9 @@ import sys
 from pathlib import Path
 
 # Добавляем текущую директорию в путь для импорта
-sys.path.insert(0, str(Path(__file__).parent))
+sys.path.insert(0, str(Path(__file__).parent))  # noqa: E402
 
-from database import NotesDatabase, setup_logging
+from database import NotesDatabase, setup_logging  # noqa: E402
 
 
 def test_bot_functions():

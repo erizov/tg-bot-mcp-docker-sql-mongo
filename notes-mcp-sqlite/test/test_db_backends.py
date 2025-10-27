@@ -6,16 +6,16 @@ import time
 from datetime import datetime, timedelta
 
 # --- PATCH sys.path for correct relative db imports ---
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))  # noqa: E402
 
 try:
-    from db.database_mongo import NotesDatabaseMongo
+    from db.database_mongo import NotesDatabaseMongo  # noqa: E402
     MONGO_AVAILABLE = True
 except ImportError:
     NotesDatabaseMongo = None
     MONGO_AVAILABLE = False
 
-from db.database_progress import NotesDatabaseProgress
+from db.database_progress import NotesDatabaseProgress  # noqa: E402
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("db_test")

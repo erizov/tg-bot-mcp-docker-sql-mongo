@@ -4,8 +4,10 @@ import time
 import logging
 from typing import Dict, List, Any
 
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-from db.database_selector import get_database
+# Add parent directory to path for imports
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))  # noqa: E402
+
+from db.database_selector import get_database  # noqa: E402
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("perf_report")
@@ -39,6 +41,7 @@ def bench(backend: str, notes_db_path: str = "notes.db") -> Dict[str, Any]:
     return {"backend": backend, "insert_time": t_insert, "lookup_time": t_lookup,
             "total_notes": t_stats["total_notes"]}
 
+
 def render_html(results: List[Dict[str, Any]]) -> str:
     rows = "".join(
         f"<tr><td>{r['backend']}</td><td>{r['insert_time']:.2f}</td>"
@@ -53,6 +56,7 @@ def render_html(results: List[Dict[str, Any]]) -> str:
             f"<th>Insert time (s, {COUNT} records)</th>"
             f"<th>Lookup time (s, {COUNT} records)</th><th>Total notes</th></tr></thead>"
             f"<tbody>{rows}</tbody></table></div></body></html>")
+
 
 def main():
     results: List[Dict[str, Any]] = []
