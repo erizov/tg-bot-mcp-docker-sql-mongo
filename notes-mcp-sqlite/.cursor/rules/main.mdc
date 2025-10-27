@@ -1,0 +1,102 @@
+---
+alwaysApply: false
+---
+# PROJECT RULES — neuro-qc-bot (FINAL, с учётом исправлений)
+
+## SCOPE
+- Три контейнера:
+  1) `bot` — Telegram-бот (отдельный сервис в `docker-compose.yml`);
+  2) `api` — FastAPI (`/health`) — отдельный сервис в `docker-compose.yml`;
+  3) `mongo` — отдельный compose (`mongo.docker-compose.yml`).
+- Общая пользовательская сеть: **`neuroqc-net`** (создать один раз и использовать во всех compose).
+- MCP для MongoDB: разрешены `list-collections`, `collection-indexes`, `find`, `aggregate`, `explain`. Любые destructive-операции (drop/$out/mass update) — **только по прямому запросу пользователя**.
+
+## FILES & STRUCTURE (DO NOT DEVIATE)
+- Корень: `pyproject.toml`, `.env.example`, `Dockerfile`, `docker-compose.yml`, `mongo.docker-compose.yml`, `README.md`.
+- `app/`:
+  - `main.py` — FastAPI `/health`
+  - `config.py` — ENV, модели/пути, URIs
+  - `stt_openai.py` — OpenAI STT
+  - `prompts/` — `evaluation.py`, `clarify.py`, `user_templates.py`
+  - `tg/` — `bot.py`, `handlers.py`, `fsm.py`, `formatting.py`, `run.py`
+  - `utils/` — `openai_client.py`, `audio.py`, `diarize.py`
+  - `db/` — `mongo.py`
+- **Не** переименовывать ключевые файлы/папки и **не** добавлять новые каталоги без явного запроса.
+
+## RUNTIME & DOCKER
+- Сеть:
+  - Если не существует — выполнить: `docker network create neuroqc-net`.
+- Приложение (`docker-compose.yml`):
+  - Два сервиса из одного образа, **разные команды**:
+    - `bot`: `python -m app.tg.run`
+    - `api`: `uvicorn app.main:app --host 0.0.0.0 --port 8000`
+  - Маунт кода `./:/app` (для dev), порт `8000:8000` для `api`, `env_file: .env`, `restart: unless-stopped`, сеть `neuroqc-net`.
+- MongoDB (`mongo.docker-compose.yml`):
+  - Контейнер `neuro-qc-mongo`, порт `27017:27017`, volume `mongodata:/data/db`, сеть `neuroqc-net`.
+- Dockerfile:
+  - `FROM python:3.11-slim`; установить `ffmpeg` через `apt`; `WORKDIR /app`; `COPY . /app`; `pip install -e .`.
+  - **Без общего `CMD`** — команды задаются в compose per-service.
+  - `EXPOSE 8000` (для `api`).
+
+## ENV & SECRETS
+- Все секреты — **только через `.env`**:
+  - Обязательные: `OPENAI_API_KEY`, `TELEGRAM_BOT_TOKEN`, `MONGODB_URI`, `MONGODB_DB`.
+  - Для контейнерной сети рекомендуется: `MONGODB_URI=mongodb://neuro-qc-mongo:27017`.
+  - Опционально: `FFMPEG_PATH` (для Windows-хоста вне Docker), `OPENAI_STT_MODEL`, `OPENAI_CHAT_MODEL`.
+- **Запрещено** хардкодить ключи. Рабочий `.env` — не коммитить.
+
+## TELEGRAM BOT — CRITICAL GUARANTEES (фикс прежних ошибок)
+- **Обязательный импорт хендлеров в точке входа**: в `app/tg/run.py` должна быть строка  
+  `import app.tg.handlers`  
+  (иначе `/start` и другие команды не зарегистрируются).
+- **Единственный инстанс бота**: при старте выполнять  
+  `await bot.delete_webhook(drop_pending_updates=True)`  
+  и **не** запускать второй процесс/контейнер с тем же токеном.
+- **Формат ответов — plain text** (`parse_mode=None`). MarkdownV2 **не использовать** (исключаем ошибки экранирования и двойной эскейп).
+- Входящие типы: `voice`, `audio`, `video`, `document` (аудио/видео).
+- Пайплайн:
+  1) скачивание файла;
+  2) `utils.audio.to_wav_16k_mono(bytes)` → WAV 16kHz mono (для видео — извлекается аудиопоток);
+  3) `stt_openai.transcribe_wav` → текст;
+  4) `utils.diarize.get_diarized_text` → «Менеджер/Клиент»;
+  5) формирование **строгого JSON-отчёта** по `prompts/evaluation.py`;
+  6) сохранение в Mongo: `calls`, `transcripts`, `reports`, `media`;
+  7) отправка отчёта в TG с разбиением сообщений по 4096 символов (`formatting.send_long_message`).
+
+## PROMPTS (STABLE CONTRACT, скорректировано для объективности)
+- `prompts/evaluation.py`:
+  - `diarization_system_prompt` — правила разделения ролей.
+  - `evaluation_system_prompt` — **конкретные критерии** и шкала:  
+    0 — отсутствует; 1–3 — минимально; 4–7 — **частично**; 8–10 — полно.  
+    Возвращать только корректный JSON по заданной схеме.
+- `prompts/clarify.py` — отвечать только в рамках диалога и отчёта.
+- `prompts/user_templates.py` — `user_prompt_template`, `user_prompt_template_clarification`.
+
+## AUDIO ONLY POLICY
+- Анализируем **только аудио**: из аудиофайла или аудиопоток, извлечённый из видео (`pydub`/`ffmpeg`).
+- **Запрещено** анализировать кадры/изображения/VQA.
+
+## MONGO DB & MCP
+- Индексы (инициализировать в `db.mongo.ensure_indexes()`):
+  - `calls(tg_user_id, filename, duration_sec, created_at)` → индекс `(tg_user_id, created_at)`
+  - `transcripts(call_id, raw_text, diarized_text, created_at)` → индекс `(call_id, created_at)`
+  - `reports(call_id, score_overall, report, created_at)` → индексы `(call_id)` и `(score_overall, created_at)`
+  - `media(tg_user_id, kind, filename, meta, created_at)` → индекс `(tg_user_id, created_at)`
+- MCP запросы из Cursor — **read-first**: `find`, `aggregate`, `explain`, `list-collections`, `collection-indexes`.
+
+## OPENAI USAGE
+- STT: `client.audio.transcriptions.create(model=OPENAI_STT_MODEL, file=<wav>)`.
+- Chat: `client.chat.completions.create(model=OPENAI_CHAT_MODEL, ...)` для диаризации/оценки/уточнений.
+- Температура: `0` (диаризация), `0.2` (отчёт/уточнения).
+- Альтернативные SR-провайдеры — **запрещены**.
+
+## CODE QUALITY
+- Python 3.11+, типы где возможно; модульность; логирование ключевых этапов (получение медиа → STT → диаризация → запись в БД → отправка).
+- Тяжёлые синхронные операции и I/O — через `asyncio.to_thread(...)` из aiogram-хендлеров.
+- Исключения — отлавливать и отдавать пользователю сообщение об ошибке; временные WAV — **удалять** после использования.
+
+## ACCEPTANCE
+- `/health` → `{"ok": true}`.
+- Бот принимает `voice/audio/video/document`, корректно присылает отчёт (plain text) и отвечает на уточняющие вопросы.
+- MCP-операции к БД работают (`find`, `aggregate`, `explain`).
+- **Нет** ошибок регистрации хендлеров (есть `import app.tg.handlers`), **нет** конфликтов нескольких инстансов бота, **нет** ошибок экранирования (MarkdownV2 не используется).

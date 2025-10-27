@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  mongo:
+    image: mongo:6
+    container_name: neuro-qc-mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodata:/data/db
+    networks:
+      - neuroqc-net
+
+volumes:
+  mongodata:
+
+networks:
+  neuroqc-net:
+    name: neuroqc-net
+    external: true

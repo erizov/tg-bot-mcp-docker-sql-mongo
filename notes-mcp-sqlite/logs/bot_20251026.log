@@ -1,0 +1,15 @@
+2025-10-26 16:49:10,519 - notes_bot - INFO - Starting bot functions test
+2025-10-26 16:49:10,562 - notes_bot - INFO - Bot functions test completed
+2025-10-26 16:57:54,394 - notes_bot - INFO - Database initialized successfully
+2025-10-26 16:57:54,398 - notes_bot - INFO - Starting bot...
+2025-10-26 16:57:54,398 - notes_bot - INFO - Bot started successfully
+2025-10-26 17:06:18,566 - notes_bot - INFO - User action: user_id=5254364410, username=@XolodnoMorozno, action=start, details=
+2025-10-26 17:06:41,332 - notes_bot - INFO - Note added: ID=12, Title='Купить', Due=None
+2025-10-26 17:06:41,332 - notes_bot - INFO - User action: user_id=5254364410, username=@XolodnoMorozno, action=add_note, details=ID=12, Title='Купить'
+2025-10-26 17:06:56,550 - notes_bot - INFO - User action: user_id=5254364410, username=@XolodnoMorozno, action=search, details=query='молоко'
+2025-10-26 17:06:56,552 - notes_bot - INFO - Search performed: query='молоко', results=1
+2025-10-26 17:07:15,399 - notes_bot - INFO - User action: user_id=5254364410, username=@XolodnoMorozno, action=stats, details=
+2025-10-26 17:07:51,775 - notes_bot - INFO - Note added: ID=13, Title='Новогодняя', Due=2025-12-31 23:59
+2025-10-26 17:07:51,776 - notes_bot - INFO - User action: user_id=5254364410, username=@XolodnoMorozno, action=add_reminder, details=ID=13, Title='Новогодняя', Due=2025-12-31 23:59
+2025-10-26 17:26:46,565 - notes_bot - INFO - Starting bot functions test
+2025-10-26 17:26:46,601 - notes_bot - INFO - Bot functions test completed

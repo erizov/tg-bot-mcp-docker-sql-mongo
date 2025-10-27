@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "SQLite": {
+      "command": "npx",
+      "args": ["-y", "mcp-sqlite", "E:/Python/Cursor/3/neuro-bot-telegram-remainder-mcp/notes-mcp-sqlite/notes.db"]
+    }
+  }
+}

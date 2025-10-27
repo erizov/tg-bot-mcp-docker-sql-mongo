@@ -1,0 +1,79 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    services:
+      mongo:
+        image: mongo:6
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd="mongosh --eval 'db.adminCommand("ping")'"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+    strategy:
+      matrix:
+        python-version: [3.11, 3.12]
+    env:
+      MONGODB_URI: mongodb://localhost:27017
+      MONGODB_DB: ci_test_notes_db
+      USE_DB_BACKEND: sqlite
+      # Add more keys as required.
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install system packages
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r notes-mcp-sqlite/requirements.txt
+          pip install pymongo flake8 fastapi uvicorn pytest
+      - name: Lint with flake8
+        run: |
+          flake8 notes-mcp-sqlite/db notes-mcp-sqlite/test --max-line-length=100
+      - name: Unit & Integration tests (SQLite + Progress)
+        run: |
+          cd notes-mcp-sqlite/test
+          PYTHONPATH=.. python test_db_backends.py
+        env:
+          USE_DB_BACKEND: sqlite
+      - name: MongoDB tests
+        run: |
+          cd notes-mcp-sqlite/test
+          PYTHONPATH=.. USE_DB_BACKEND=mongo python test_db_backends.py
+        env:
+          MONGODB_URI: mongodb://localhost:27017
+          MONGODB_DB: ci_test_notes_db
+          USE_DB_BACKEND: mongo
+      - name: Generate performance report
+        run: |
+          cd notes-mcp-sqlite/test
+          PYTHONPATH=.. python report_perf.py
+      - name: Archive perf report
+        uses: actions/upload-artifact@v4
+        with:
+          name: db_perf_report
+          path: notes-mcp-sqlite/test/db_perf_report.html
+      - name: Build Docker image
+        run: |
+          docker build -t tg-notes-bot:ci -f Dockerfile .
+      - name: FastAPI Monitor smoke test
+        run: |
+          pip install httpx
+          nohup uvicorn notes-mcp-sqlite.db.monitor_db:app --port 8001 &
+          sleep 10
+          python3 -c "import httpx; assert httpx.get('http://localhost:8001/health').status_code == 200"
