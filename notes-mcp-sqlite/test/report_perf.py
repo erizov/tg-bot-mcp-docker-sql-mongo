@@ -10,6 +10,7 @@ from db.database_selector import get_database
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("perf_report")
 
+
 BACKENDS = ["sqlite", "progress"]
 try:
     import pymongo
@@ -18,6 +19,7 @@ except ImportError:
     logger.warning("MongoDB backend skipped (pymongo not installed)")
 
 COUNT = 500  # manageable for perf in dev
+
 
 def bench(backend: str, notes_db_path: str = "notes.db") -> Dict[str, Any]:
     os.environ["USE_DB_BACKEND"] = backend
@@ -32,12 +34,25 @@ def bench(backend: str, notes_db_path: str = "notes.db") -> Dict[str, Any]:
         _ = db.get_note_by_id(test_id)
     t_lookup = time.perf_counter() - t1
     t_stats = db.get_stats()
-    logger.info(f"Backend {backend}: Insert {t_insert:.3f}s, Lookup {t_lookup:.3f}s, Stats: {t_stats}")
-    return {"backend": backend, "insert_time": t_insert, "lookup_time": t_lookup, "total_notes": t_stats["total_notes"]}
+    logger.info(f"Backend {backend}: Insert {t_insert:.3f}s, "
+                f"Lookup {t_lookup:.3f}s, Stats: {t_stats}")
+    return {"backend": backend, "insert_time": t_insert, "lookup_time": t_lookup,
+            "total_notes": t_stats["total_notes"]}
 
 def render_html(results: List[Dict[str, Any]]) -> str:
-    rows = "".join(f"<tr><td>{r['backend']}</td><td>{r['insert_time']:.2f}</td><td>{r['lookup_time']:.2f}</td><td>{r['total_notes']}</td></tr>" for r in results)
-    return f"""<html><head><title>DB Perf Report</title><link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css'></head><body><div class='container'><h2>Performance DB Backends</h2><table class='table'><thead><tr><th>Backend</th><th>Insert time (s, {COUNT} records)</th><th>Lookup time (s, {COUNT} records)</th><th>Total notes</th></tr></thead><tbody>{rows}</tbody></table></div></body></html>"""
+    rows = "".join(
+        f"<tr><td>{r['backend']}</td><td>{r['insert_time']:.2f}</td>"
+        f"<td>{r['lookup_time']:.2f}</td><td>{r['total_notes']}</td></tr>"
+        for r in results
+    )
+    return (f"<html><head><title>DB Perf Report</title>"
+            f"<link rel='stylesheet' "
+            f"href='https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css'>"
+            f"</head><body><div class='container'><h2>Performance DB Backends</h2>"
+            f"<table class='table'><thead><tr><th>Backend</th>"
+            f"<th>Insert time (s, {COUNT} records)</th>"
+            f"<th>Lookup time (s, {COUNT} records)</th><th>Total notes</th></tr></thead>"
+            f"<tbody>{rows}</tbody></table></div></body></html>")
 
 def main():
     results: List[Dict[str, Any]] = []
@@ -52,6 +67,7 @@ def main():
     with open(outname, "w", encoding="utf-8") as f:
         f.write(html)
     print(f"Performance report written to {outname}")
+
 
 if __name__ == "__main__":
     main()

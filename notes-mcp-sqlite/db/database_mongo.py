@@ -1,15 +1,15 @@
 import os
 import logging
 from datetime import datetime, timedelta
-from typing import Optional, List, Tuple, Dict, Any
+from typing import Optional, List, Dict, Any
 from pymongo import MongoClient, ASCENDING, DESCENDING
-from pymongo.collection import Collection
 
 logger = logging.getLogger("notes_bot")
 logger.setLevel(logging.INFO)
 
 MONGO_URI = os.getenv("MONGODB_URI", "mongodb://localhost:27017")
 MONGO_DB = os.getenv("MONGODB_DB", "notes_db")
+
 
 class NotesDatabaseMongo:
     """

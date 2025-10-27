@@ -6,6 +6,7 @@ logger = logging.getLogger("notes_bot")
 
 USE_DB_BACKEND = os.getenv("USE_DB_BACKEND", "sqlite")
 
+
 NotesDatabaseClass: Any = None
 
 try:

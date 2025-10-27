@@ -1,10 +1,11 @@
 import logging
 from datetime import datetime, timedelta
-from typing import Optional, List, Tuple, Dict, Any
+from typing import Optional, List, Dict, Any
 import uuid
 
 logger = logging.getLogger("notes_bot")
 logger.setLevel(logging.INFO)
+
 
 class NotesDatabaseProgress:
     """In-memory progress database version for notes (for tests/dev)."""
@@ -35,7 +36,8 @@ class NotesDatabaseProgress:
 
     def search_notes(self, query: str, limit: int = 10) -> List[Dict[str, Any]]:
         res = [note for note in self.notes.values()
-               if query.lower() in note["title"].lower() or query.lower() in note["content"].lower()]
+               if (query.lower() in note["title"].lower() or
+                   query.lower() in note["content"].lower())]
         logger.info(f"Search performed (progress): query='{query}', results={len(res)}")
         return sorted(res, key=lambda n: n["created_at"], reverse=True)[:limit]
 
