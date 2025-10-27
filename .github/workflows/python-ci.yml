@@ -44,6 +44,28 @@ jobs:
           --health-interval=10s
           --health-timeout=5s
           --health-retries=5
+      cassandra:
+        image: cassandra:4.1
+        ports:
+          - 9042:9042
+        env:
+          CASSANDRA_CLUSTER_NAME: "NotesCluster"
+          CASSANDRA_DC: "datacenter1"
+          CASSANDRA_RACK: "rack1"
+          CASSANDRA_ENDPOINT_SNITCH: "GossipingPropertyFileSnitch"
+          CASSANDRA_SEEDS: "cassandra"
+          CASSANDRA_LISTEN_ADDRESS: "cassandra"
+          CASSANDRA_RPC_ADDRESS: "cassandra"
+          CASSANDRA_BROADCAST_ADDRESS: "cassandra"
+          CASSANDRA_BROADCAST_RPC_ADDRESS: "cassandra"
+          CASSANDRA_AUTHENTICATOR: "AllowAllAuthenticator"
+          CASSANDRA_AUTHORIZER: "AllowAllAuthorizer"
+        options: >-
+          --health-cmd="cqlsh -e 'describe keyspaces'"
+          --health-interval=30s
+          --health-timeout=10s
+          --health-retries=5
+          --health-start-period=60s
     strategy:
       matrix:
         python-version: [3.11, 3.12]
@@ -58,6 +80,11 @@ jobs:
       POSTGRESQL_DB: notes_db
       POSTGRESQL_USER: postgres
       POSTGRESQL_PASSWORD: password
+      CASSANDRA_HOSTS: localhost
+      CASSANDRA_PORT: 9042
+      CASSANDRA_KEYSPACE: notes_keyspace
+      CASSANDRA_USER: ""
+      CASSANDRA_PASSWORD: ""
       USE_DB_BACKEND: sqlite
       # Add more keys as required.
     steps:
@@ -74,7 +101,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r notes-mcp-sqlite/setup/requirements.txt
-          pip install pymongo neo4j requests psycopg2-binary flake8 fastapi uvicorn pytest
+          pip install pymongo neo4j requests psycopg2-binary cassandra-driver flake8 fastapi uvicorn pytest
       - name: Lint with flake8
         run: |
           flake8 notes-mcp-sqlite/db notes-mcp-sqlite/test --max-line-length=100
@@ -112,6 +139,17 @@ jobs:
           POSTGRESQL_USER: postgres
           POSTGRESQL_PASSWORD: password
           USE_DB_BACKEND: postgresql
+      - name: Cassandra tests
+        run: |
+          cd notes-mcp-sqlite/test
+          PYTHONPATH=.. USE_DB_BACKEND=cassandra python test_db_backends.py
+        env:
+          CASSANDRA_HOSTS: localhost
+          CASSANDRA_PORT: 9042
+          CASSANDRA_KEYSPACE: notes_keyspace
+          CASSANDRA_USER: ""
+          CASSANDRA_PASSWORD: ""
+          USE_DB_BACKEND: cassandra
       - name: Generate performance report
         run: |
           cd notes-mcp-sqlite/test
@@ -127,8 +165,8 @@ jobs:
           docker build -t tg-notes-bot:mongo -f dockerfiles/Dockerfile.mongo .
           docker build -t tg-notes-bot:neo4j -f dockerfiles/Dockerfile.neo4j .
           docker build -t tg-notes-bot:postgresql -f dockerfiles/Dockerfile.postgresql .
+          docker build -t tg-notes-bot:cassandra -f dockerfiles/Dockerfile.cassandra .
           docker build -t tg-notes-bot:progress -f dockerfiles/Dockerfile.progress .
-          docker build -t tg-notes-bot:progress-server -f dockerfiles/Dockerfile.progress-server .
       - name: FastAPI Monitor smoke test
         run: |
           pip install httpx

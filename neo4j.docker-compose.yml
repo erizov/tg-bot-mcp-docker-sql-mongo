@@ -3,10 +3,10 @@ version: '3.8'
 services:
   neo4j:
     image: neo4j:5.15-community
-    container_name: notes-neo4j
+    container_name: neuro-qc-neo4j
     ports:
-      - "7474:7474"  # HTTP
-      - "7687:7687"  # Bolt
+      - "7475:7474"  # HTTP (mapped to avoid conflict)
+      - "7688:7687"  # Bolt (mapped to avoid conflict)
     environment:
       - NEO4J_AUTH=neo4j/password
       - NEO4J_PLUGINS=["apoc"]
@@ -18,7 +18,7 @@ services:
       - neo4j_import:/var/lib/neo4j/import
       - neo4j_plugins:/plugins
     networks:
-      - notes-net
+      - neuroqc-net
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "cypher-shell", "-u", "neo4j", "-p", "password", "RETURN 1"]
@@ -33,5 +33,5 @@ volumes:
   neo4j_plugins:
 
 networks:
-  notes-net:
+  neuroqc-net:
     external: true

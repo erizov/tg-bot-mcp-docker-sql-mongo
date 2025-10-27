@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notes Bot Dashboard</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/components.css">
+    <link rel="stylesheet" href="styles/responsive.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div id="app">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1 class="logo">
+                    <i class="fas fa-sticky-note"></i>
+                    Notes Bot Dashboard
+                </h1>
+                <nav class="nav">
+                    <button class="nav-btn active" data-tab="dashboard">
+                        <i class="fas fa-tachometer-alt"></i>
+                        Dashboard
+                    </button>
+                    <button class="nav-btn" data-tab="search">
+                        <i class="fas fa-search"></i>
+                        Search
+                    </button>
+                    <button class="nav-btn" data-tab="reports">
+                        <i class="fas fa-chart-bar"></i>
+                        Reports
+                    </button>
+                    <button class="nav-btn" data-tab="monitoring">
+                        <i class="fas fa-monitor"></i>
+                        Monitoring
+                    </button>
+                </nav>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Dashboard Tab -->
+            <div id="dashboard" class="tab-content active">
+                <div class="dashboard-grid">
+                    <!-- Database Status Cards -->
+                    <div class="status-cards">
+                        <div class="status-card" id="sqlite-status">
+                            <div class="card-header">
+                                <i class="fas fa-database"></i>
+                                <h3>SQLite</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="status-indicator" data-status="unknown">
+                                    <span class="status-dot"></span>
+                                    <span class="status-text">Checking...</span>
+                                </div>
+                                <div class="stats">
+                                    <div class="stat">
+                                        <span class="stat-label">Notes:</span>
+                                        <span class="stat-value" id="sqlite-notes">-</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="status-card" id="mongo-status">
+                            <div class="card-header">
+                                <i class="fas fa-leaf"></i>
+                                <h3>MongoDB</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="status-indicator" data-status="unknown">
+                                    <span class="status-dot"></span>
+                                    <span class="status-text">Checking...</span>
+                                </div>
+                                <div class="stats">
+                                    <div class="stat">
+                                        <span class="stat-label">Notes:</span>
+                                        <span class="stat-value" id="mongo-notes">-</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="status-card" id="neo4j-status">
+                            <div class="card-header">
+                                <i class="fas fa-project-diagram"></i>
+                                <h3>Neo4j</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="status-indicator" data-status="unknown">
+                                    <span class="status-dot"></span>
+                                    <span class="status-text">Checking...</span>
+                                </div>
+                                <div class="stats">
+                                    <div class="stat">
+                                        <span class="stat-label">Notes:</span>
+                                        <span class="stat-value" id="neo4j-notes">-</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="status-card" id="postgresql-status">
+                            <div class="card-header">
+                                <i class="fas fa-elephant"></i>
+                                <h3>PostgreSQL</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="status-indicator" data-status="unknown">
+                                    <span class="status-dot"></span>
+                                    <span class="status-text">Checking...</span>
+                                </div>
+                                <div class="stats">
+                                    <div class="stat">
+                                        <span class="stat-label">Notes:</span>
+                                        <span class="stat-value" id="postgresql-notes">-</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="status-card" id="cassandra-status">
+                            <div class="card-header">
+                                <i class="fas fa-layer-group"></i>
+                                <h3>Cassandra</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="status-indicator" data-status="unknown">
+                                    <span class="status-dot"></span>
+                                    <span class="status-text">Checking...</span>
+                                </div>
+                                <div class="stats">
+                                    <div class="stat">
+                                        <span class="stat-label">Notes:</span>
+                                        <span class="stat-value" id="cassandra-notes">-</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="status-card" id="progress-status">
+                            <div class="card-header">
+                                <i class="fas fa-memory"></i>
+                                <h3>Progress</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="status-indicator" data-status="unknown">
+                                    <span class="status-dot"></span>
+                                    <span class="status-text">Checking...</span>
+                                </div>
+                                <div class="stats">
+                                    <div class="stat">
+                                        <span class="stat-label">Notes:</span>
+                                        <span class="stat-value" id="progress-notes">-</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Performance Chart -->
+                    <div class="chart-container">
+                        <h3>Database Performance</h3>
+                        <canvas id="performanceChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Search Tab -->
+            <div id="search" class="tab-content">
+                <div class="search-container">
+                    <div class="search-header">
+                        <h2>Search Notes</h2>
+                        <div class="search-controls">
+                            <div class="database-selector">
+                                <label for="search-db">Database:</label>
+                                <select id="search-db">
+                                    <option value="sqlite">SQLite</option>
+                                    <option value="mongo">MongoDB</option>
+                                    <option value="neo4j">Neo4j</option>
+                                    <option value="postgresql">PostgreSQL</option>
+                                    <option value="cassandra">Cassandra</option>
+                                    <option value="progress">Progress</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="search-form">
+                        <div class="search-input-group">
+                            <input type="text" id="search-query" placeholder="Enter search terms...">
+                            <button id="search-btn" class="btn btn-primary">
+                                <i class="fas fa-search"></i>
+                                Search
+                            </button>
+                        </div>
+                        <div class="search-filters">
+                            <label>
+                                <input type="checkbox" id="search-title"> Search in titles
+                            </label>
+                            <label>
+                                <input type="checkbox" id="search-content"> Search in content
+                            </label>
+                            <label>
+                                <input type="checkbox" id="search-reminders"> Include reminders
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="search-results" id="search-results">
+                        <div class="no-results">
+                            <i class="fas fa-search"></i>
+                            <p>Enter a search term to find notes</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reports Tab -->
+            <div id="reports" class="tab-content">
+                <div class="reports-container">
+                    <div class="reports-header">
+                        <h2>Performance Reports</h2>
+                        <div class="report-controls">
+                            <button id="generate-report" class="btn btn-primary">
+                                <i class="fas fa-sync"></i>
+                                Generate Report
+                            </button>
+                            <button id="export-report" class="btn btn-secondary" disabled>
+                                <i class="fas fa-download"></i>
+                                Export HTML
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="report-content" id="report-content">
+                        <div class="report-placeholder">
+                            <i class="fas fa-chart-line"></i>
+                            <h3>No Report Available</h3>
+                            <p>Click "Generate Report" to create a performance analysis</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Monitoring Tab -->
+            <div id="monitoring" class="tab-content">
+                <div class="monitoring-container">
+                    <div class="monitoring-header">
+                        <h2>Real-time Monitoring</h2>
+                        <div class="monitoring-controls">
+                            <button id="start-monitoring" class="btn btn-success">
+                                <i class="fas fa-play"></i>
+                                Start Monitoring
+                            </button>
+                            <button id="stop-monitoring" class="btn btn-danger" disabled>
+                                <i class="fas fa-stop"></i>
+                                Stop Monitoring
+                            </button>
+                            <div class="refresh-interval">
+                                <label for="refresh-rate">Refresh Rate:</label>
+                                <select id="refresh-rate">
+                                    <option value="1000">1 second</option>
+                                    <option value="5000" selected>5 seconds</option>
+                                    <option value="10000">10 seconds</option>
+                                    <option value="30000">30 seconds</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="monitoring-grid">
+                        <div class="monitoring-card">
+                            <h3>Database Health</h3>
+                            <div class="health-metrics" id="health-metrics">
+                                <!-- Health metrics will be populated here -->
+                            </div>
+                        </div>
+
+                        <div class="monitoring-card">
+                            <h3>Performance Metrics</h3>
+                            <div class="performance-metrics" id="performance-metrics">
+                                <!-- Performance metrics will be populated here -->
+                            </div>
+                        </div>
+
+                        <div class="monitoring-card">
+                            <h3>Recent Activity</h3>
+                            <div class="activity-log" id="activity-log">
+                                <!-- Activity log will be populated here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Loading Overlay -->
+        <div id="loading-overlay" class="loading-overlay">
+            <div class="loading-spinner">
+                <i class="fas fa-spinner fa-spin"></i>
+                <p>Loading...</p>
+            </div>
+        </div>
+
+        <!-- Toast Notifications -->
+        <div id="toast-container" class="toast-container"></div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/components.js"></script>
+    <script src="js/charts.js"></script>
+</body>
+</html>

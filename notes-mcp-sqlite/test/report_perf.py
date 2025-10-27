@@ -27,16 +27,16 @@ except ImportError:
     logger.warning("Neo4j backend skipped (neo4j driver not installed)")
 
 try:
-    import requests  # noqa: F401
-    BACKENDS.append("progress_server")
-except ImportError:
-    logger.warning("Progress server backend skipped (requests not installed)")
-
-try:
     import psycopg2  # noqa: F401
     BACKENDS.append("postgresql")
 except ImportError:
     logger.warning("PostgreSQL backend skipped (psycopg2 not installed)")
+
+try:
+    import cassandra  # noqa: F401
+    BACKENDS.append("cassandra")
+except ImportError:
+    logger.warning("Cassandra backend skipped (cassandra-driver not installed)")
 
 COUNT = 500  # manageable for perf in dev
 

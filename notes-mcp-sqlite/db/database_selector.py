@@ -19,12 +19,12 @@ try:
     elif USE_DB_BACKEND == "progress":
         from db.database_progress import NotesDatabaseProgress
         NotesDatabaseClass = NotesDatabaseProgress
-    elif USE_DB_BACKEND == "progress_server":
-        from db.database_progress_server import NotesDatabaseProgressServer
-        NotesDatabaseClass = NotesDatabaseProgressServer
     elif USE_DB_BACKEND == "postgresql":
         from db.database_postgresql import NotesDatabasePostgreSQL
         NotesDatabaseClass = NotesDatabasePostgreSQL
+    elif USE_DB_BACKEND == "cassandra":
+        from db.database_cassandra import NotesDatabaseCassandra
+        NotesDatabaseClass = NotesDatabaseCassandra
     else:
         from db.database import NotesDatabase
         NotesDatabaseClass = NotesDatabase

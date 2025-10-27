@@ -23,18 +23,18 @@ except ImportError:
     NEO4J_AVAILABLE = False
 
 try:
-    from db.database_progress_server import NotesDatabaseProgressServer  # noqa: E402
-    PROGRESS_SERVER_AVAILABLE = True
-except ImportError:
-    NotesDatabaseProgressServer = None
-    PROGRESS_SERVER_AVAILABLE = False
-
-try:
     from db.database_postgresql import NotesDatabasePostgreSQL  # noqa: E402
     POSTGRESQL_AVAILABLE = True
 except ImportError:
     NotesDatabasePostgreSQL = None
     POSTGRESQL_AVAILABLE = False
+
+try:
+    from db.database_cassandra import NotesDatabaseCassandra  # noqa: E402
+    CASSANDRA_AVAILABLE = True
+except ImportError:
+    NotesDatabaseCassandra = None
+    CASSANDRA_AVAILABLE = False
 
 from db.database_progress import NotesDatabaseProgress  # noqa: E402
 
@@ -170,57 +170,6 @@ class Neo4jTestCase(unittest.TestCase):
         self.assertTrue(any(n["title"] == "Neo4jRemind" for n in reminders))
 
 
-@unittest.skipUnless(PROGRESS_SERVER_AVAILABLE, "Progress server not available")
-class ProgressServerTestCase(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        try:
-            cls.progress_server = NotesDatabaseProgressServer()
-            cls.working = True
-        except Exception as e:
-            logger.error(f"Progress server unavailable: {e}")
-            cls.working = False
-
-    def setUp(self):
-        if self.working:
-            self.db = self.progress_server
-            # Clear all notes
-            try:
-                notes = self.db.get_all_notes()
-                for note in notes:
-                    self.db.delete_note(note["id"])
-            except Exception:
-                pass  # Server might not have any notes
-            logger.info("Progress server wiped for unit test.")
-
-    def test_add_and_get(self):
-        note_id = self.db.add_note("ProgressServerTest", "Server content")
-        note = self.db.get_note_by_id(note_id)
-        self.assertIsNotNone(note)
-        self.assertEqual(note["title"], "ProgressServerTest")
-
-    def test_delete(self):
-        note_id = self.db.add_note("ProgressServerDelete", "Delete test")
-        self.assertTrue(self.db.delete_note(note_id))
-
-    def test_search(self):
-        self.db.add_note("ProgressServerSearch", "Search test")
-        res = self.db.search_notes("ProgressServerSearch")
-        self.assertTrue(any(n["title"] == "ProgressServerSearch" for n in res))
-
-    def test_stats(self):
-        self.db.add_note("ProgressServerS1", "Stats", due_at=datetime.now().isoformat())
-        self.db.add_note("ProgressServerS2", "Stats")
-        stats = self.db.get_stats()
-        self.assertGreaterEqual(stats["total_notes"], 2)
-
-    def test_reminders(self):
-        due_time = (datetime.now() + timedelta(seconds=10)).isoformat()
-        self.db.add_note("ProgressServerRemind", "remind", due_at=due_time)
-        reminders = self.db.get_upcoming_reminders(1)
-        self.assertTrue(any(n["title"] == "ProgressServerRemind" for n in reminders))
-
-
 @unittest.skipUnless(POSTGRESQL_AVAILABLE, "PostgreSQL driver not installed")
 class PostgreSQLTestCase(unittest.TestCase):
     @classmethod
@@ -272,6 +221,57 @@ class PostgreSQLTestCase(unittest.TestCase):
         self.assertTrue(any(n["title"] == "PostgreSQLRemind" for n in reminders))
 
 
+@unittest.skipUnless(CASSANDRA_AVAILABLE, "Cassandra driver not installed")
+class CassandraTestCase(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        try:
+            cls.cassandra = NotesDatabaseCassandra()
+            cls.working = True
+        except Exception as e:
+            logger.error(f"Cassandra unavailable: {e}")
+            cls.working = False
+
+    def setUp(self):
+        if self.working:
+            self.db = self.cassandra
+            # Clear all notes
+            try:
+                notes = self.db.get_all_notes()
+                for note in notes:
+                    self.db.delete_note(note["id"])
+            except Exception:
+                pass  # Database might not have any notes
+            logger.info("Cassandra wiped for unit test.")
+
+    def test_add_and_get(self):
+        note_id = self.db.add_note("CassandraTest", "Cassandra content")
+        note = self.db.get_note_by_id(note_id)
+        self.assertIsNotNone(note)
+        self.assertEqual(note["title"], "CassandraTest")
+
+    def test_delete(self):
+        note_id = self.db.add_note("CassandraDelete", "Delete test")
+        self.assertTrue(self.db.delete_note(note_id))
+
+    def test_search(self):
+        self.db.add_note("CassandraSearch", "Search test")
+        res = self.db.search_notes("CassandraSearch")
+        self.assertTrue(any(n["title"] == "CassandraSearch" for n in res))
+
+    def test_stats(self):
+        self.db.add_note("CassandraS1", "Stats", due_at=datetime.now().isoformat())
+        self.db.add_note("CassandraS2", "Stats")
+        stats = self.db.get_stats()
+        self.assertGreaterEqual(stats["total_notes"], 2)
+
+    def test_reminders(self):
+        due_time = (datetime.now() + timedelta(seconds=10)).isoformat()
+        self.db.add_note("CassandraRemind", "remind", due_at=due_time)
+        reminders = self.db.get_upcoming_reminders(1)
+        self.assertTrue(any(n["title"] == "CassandraRemind" for n in reminders))
+
+
 class LoadBenchmarkTest(unittest.TestCase):
     def benchmark(self, cls, label):
         logger.info(f"[BENCH] {label}")
@@ -279,10 +279,10 @@ class LoadBenchmarkTest(unittest.TestCase):
             db = NotesDatabaseMongo()
         elif cls == NotesDatabaseNeo4j:
             db = NotesDatabaseNeo4j()
-        elif cls == NotesDatabaseProgressServer:
-            db = NotesDatabaseProgressServer()
         elif cls == NotesDatabasePostgreSQL:
             db = NotesDatabasePostgreSQL()
+        elif cls == NotesDatabaseCassandra:
+            db = NotesDatabaseCassandra()
         else:
             db = cls()
 
@@ -305,13 +305,13 @@ class LoadBenchmarkTest(unittest.TestCase):
     def test_neo4j_load(self):
         self.benchmark(NotesDatabaseNeo4j, "Neo4j")
 
-    @unittest.skipUnless(PROGRESS_SERVER_AVAILABLE, "Progress server not available")
-    def test_progress_server_load(self):
-        self.benchmark(NotesDatabaseProgressServer, "Progress Server")
-
     @unittest.skipUnless(POSTGRESQL_AVAILABLE, "PostgreSQL driver not installed")
     def test_postgresql_load(self):
         self.benchmark(NotesDatabasePostgreSQL, "PostgreSQL")
+
+    @unittest.skipUnless(CASSANDRA_AVAILABLE, "Cassandra driver not installed")
+    def test_cassandra_load(self):
+        self.benchmark(NotesDatabaseCassandra, "Cassandra")
 
 
 if __name__ == "__main__":

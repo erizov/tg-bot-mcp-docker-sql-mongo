@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  cassandra:
+    image: cassandra:4.1
+    hostname: cassandra
+    container_name: neuro-qc-cassandra
+    ports:
+      - "9042:9042"
+      - "7000:7000"
+      - "7001:7001"
+      - "9160:9160"
+    volumes:
+      - cassandra_data:/var/lib/cassandra
+    environment:
+      CASSANDRA_CLUSTER_NAME: "NotesCluster"
+      CASSANDRA_DC: "datacenter1"
+      CASSANDRA_RACK: "rack1"
+      CASSANDRA_ENDPOINT_SNITCH: "GossipingPropertyFileSnitch"
+      CASSANDRA_SEEDS: "cassandra"
+      CASSANDRA_LISTEN_ADDRESS: "cassandra"
+      CASSANDRA_RPC_ADDRESS: "cassandra"
+      CASSANDRA_BROADCAST_ADDRESS: "cassandra"
+      CASSANDRA_BROADCAST_RPC_ADDRESS: "cassandra"
+      CASSANDRA_AUTHENTICATOR: "AllowAllAuthenticator"
+      CASSANDRA_AUTHORIZER: "AllowAllAuthorizer"
+    networks:
+      - neuroqc-net
+    healthcheck:
+      test: ["CMD-SHELL", "cqlsh -e 'describe keyspaces'"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+volumes:
+  cassandra_data:
+
+networks:
+  neuroqc-net:
+    external: true

@@ -17,7 +17,7 @@ COPY notes-mcp-sqlite/ .
 
 # Set environment variables for Neo4j
 ENV USE_DB_BACKEND=neo4j
-ENV NEO4J_URI=bolt://neo4j:7687
+ENV NEO4J_URI=bolt://neuro-qc-neo4j:7687
 ENV NEO4J_USER=neo4j
 ENV NEO4J_PASSWORD=password
 ENV PYTHONPATH=/app

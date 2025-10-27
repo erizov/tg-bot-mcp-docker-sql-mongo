@@ -1,6 +1,6 @@
-[![Python](https://img.shields.io/badge/python-3.8+-blue?logo=python)](https://python.org) [![Docker](https://img.shields.io/badge/docker-ready-blue?logo=docker)](https://www.docker.com/) [![Tested DBs](https://img.shields.io/badge/DBs-SQLite--Progress--Mongo--Neo4j--PostgreSQL--ProgressServer-green?logo=mongodb)](#бэкенды-баз-данных)
+[![Python](https://img.shields.io/badge/python-3.8+-blue?logo=python)](https://python.org) [![Docker](https://img.shields.io/badge/docker-ready-blue?logo=docker)](https://www.docker.com/) [![Tested DBs](https://img.shields.io/badge/DBs-SQLite--Progress--Mongo--Neo4j--PostgreSQL--Cassandra--ProgressServer-green?logo=mongodb)](#бэкенды-баз-данных)
 
-# Телеграм-бот заметок + напоминаний (SQLite/Mongo/Neo4j/PostgreSQL/Progress)
+# Телеграм-бот заметок + напоминаний (SQLite/Mongo/Neo4j/PostgreSQL/Cassandra/Progress)
 
 **[🇷🇺 Русский README ниже]**
 
@@ -8,10 +8,12 @@
 
 ## 🚩 Features
 - Telegram bot for notes & reminders
-- Hot-swap DB: SQLite, MongoDB (Docker), Neo4j (Docker), PostgreSQL (Docker), In-memory (Progress), Progress Server
+- Hot-swap DB: SQLite, MongoDB (Docker), Neo4j (Docker), PostgreSQL (Docker), Cassandra (Docker), In-memory (Progress)
 - Dockerized stack, easy Compose up
 - Unit, integration, and load test coverage
 - FastAPI REST DB monitoring (see `/count/html` dashboard)
+- Elasticsearch for advanced querying across all databases
+- Grafana dashboards for monitoring and reporting
 - MCP Cursor integration ready
 - Full logging/reporting, HTML perf reports
 
@@ -69,8 +71,8 @@ python bot.py
 - **`Dockerfile.mongo`** - MongoDB backend
 - **`Dockerfile.neo4j`** - Neo4j backend
 - **`Dockerfile.postgresql`** - PostgreSQL backend
+- **`Dockerfile.cassandra`** - Cassandra backend
 - **`Dockerfile.progress`** - Progress (in-memory) backend
-- **`Dockerfile.progress-server`** - Progress Server backend
 
 ### Примеры использования:
 
@@ -87,9 +89,56 @@ docker run -p 8001:8001 --network neuroqc-net tg-notes-bot:mongo
 docker compose -f postgresql.docker-compose.yml up -d
 docker build -f dockerfiles/Dockerfile.postgresql -t tg-notes-bot:postgresql .
 docker run -p 8001:8001 --network neuroqc-net tg-notes-bot:postgresql
+
+# Cassandra
+docker compose -f cassandra.docker-compose.yml up -d
+docker build -f dockerfiles/Dockerfile.cassandra -t tg-notes-bot:cassandra .
+docker run -p 8001:8001 --network neuroqc-net tg-notes-bot:cassandra
 ```
 
 Подробная документация: [dockerfiles/README.md](../dockerfiles/README.md)
+
+---
+
+# 🔍 Elasticsearch для запросов по всем БД
+
+Elasticsearch предоставляет мощные возможности поиска и анализа данных из всех подключенных баз данных.
+
+### Запуск Elasticsearch + Kibana:
+```bash
+docker compose -f elasticsearch.docker-compose.yml up -d
+```
+
+### Доступ к сервисам:
+- **Elasticsearch**: http://localhost:9200
+- **Kibana**: http://localhost:5601
+
+### Основные возможности:
+- Полнотекстовый поиск по всем заметкам
+- Агрегация и аналитика данных
+- Визуализация данных через Kibana
+- Индексирование данных из всех БД
+
+---
+
+# 📊 Grafana для мониторинга и отчётности
+
+Grafana предоставляет комплексные дашборды для мониторинга производительности всех баз данных.
+
+### Запуск Grafana + Prometheus:
+```bash
+docker compose -f grafana.docker-compose.yml up -d
+```
+
+### Доступ к сервисам:
+- **Grafana**: http://localhost:3000 (admin/admin)
+- **Prometheus**: http://localhost:9090
+
+### Основные возможности:
+- Дашборды производительности БД
+- Мониторинг метрик в реальном времени
+- Алерты и уведомления
+- Отчёты по использованию ресурсов
 
 ---
 
@@ -343,7 +392,7 @@ python clean_test_logs.py
 - **MongoDB** (поддерживается через docker, используется MCP и отдельные сервисы)
 - **Neo4j** (графовая БД через docker, поддерживает связи между заметками)
 - **PostgreSQL** (реляционная БД через docker, поддерживает полнотекстовый поиск)
-- **Progress Server** (HTTP API сервер для внешних систем)
+- **Cassandra** (wide-column БД через docker, масштабируемое хранение)
 
 Переключение осуществляется переменной окружения:
 ```bash
@@ -352,6 +401,7 @@ set USE_DB_BACKEND=progress
 set USE_DB_BACKEND=mongo
 set USE_DB_BACKEND=neo4j
 set USE_DB_BACKEND=postgresql
+set USE_DB_BACKEND=cassandra
 set USE_DB_BACKEND=progress_server
 ```
 
@@ -370,9 +420,9 @@ docker compose -f neo4j.docker-compose.yml up -d
 docker compose -f postgresql.docker-compose.yml up -d
 ```
 
-Для Progress Server требуется установленный и запущенный контейнер:
+Для Cassandra требуется установленный и запущенный контейнер:
 ```bash
-docker compose -f progress-server.docker-compose.yml up -d
+docker compose -f cassandra.docker-compose.yml up -d
 ```
 
 ---
@@ -401,6 +451,7 @@ python report_perf.py
 | mongo           | 14.65                    | 1.18            | 2500        |
 | neo4j           | 16.23                    | 1.45            | 2500        |
 | postgresql      | 15.87                    | 1.32            | 2500        |
+| cassandra       | 18.45                    | 1.89            | 2500        |
 | progress_server | 18.12                    | 2.89            | 2500        |
 
 ### 3. Логирование тестов

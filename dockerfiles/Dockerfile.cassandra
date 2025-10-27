@@ -1,4 +1,4 @@
-# Dockerfile for Progress Server backend
+# Dockerfile for Cassandra backend
 FROM python:3.11-slim
 
 WORKDIR /app
@@ -15,9 +15,13 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy application code
 COPY notes-mcp-sqlite/ .
 
-# Set environment variables for Progress Server
-ENV USE_DB_BACKEND=progress_server
-ENV PROGRESS_SERVER_URL=http://progress-server:8080
+# Set environment variables for Cassandra
+ENV USE_DB_BACKEND=cassandra
+ENV CASSANDRA_HOSTS=cassandra
+ENV CASSANDRA_PORT=9042
+ENV CASSANDRA_KEYSPACE=notes_keyspace
+ENV CASSANDRA_USER=
+ENV CASSANDRA_PASSWORD=
 ENV PYTHONPATH=/app
 
 # Expose port for monitoring
