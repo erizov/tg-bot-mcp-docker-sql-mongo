@@ -66,7 +66,7 @@ jobs:
       - name: Archive perf report
         uses: actions/upload-artifact@v4
         with:
-          name: db_perf_report
+          name: db_perf_report_py${{ matrix.python-version }}
           path: notes-mcp-sqlite/test/db_perf_report.html
       - name: Build Docker image
         run: |
