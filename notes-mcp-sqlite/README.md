@@ -1,4 +1,4 @@
-[![Python](https://img.shields.io/badge/python-3.8+-blue?logo=python)](https://python.org) [![Docker](https://img.shields.io/badge/docker-ready-blue?logo=docker)](https://www.docker.com/) [![Tested DBs](https://img.shields.io/badge/DBs-SQLite--Progress--Mongo--Neo4j--PostgreSQL--Cassandra--ProgressServer-green?logo=mongodb)](#бэкенды-баз-данных)
+[![Python](https://img.shields.io/badge/python-3.8+-blue?logo=python)](https://python.org) [![Docker](https://img.shields.io/badge/docker-ready-blue?logo=docker)](https://www.docker.com/) [![Tested DBs](https://img.shields.io/badge/DBs-SQLite--Progress--Mongo--Neo4j--PostgreSQL--Cassandra-green?logo=mongodb)](#бэкенды-баз-данных) [![Frontend](https://img.shields.io/badge/frontend-HTML5--CSS3--TypeScript-blue?logo=html5)](#-полные-примеры-запуска-всех-компонентов) [![Monitoring](https://img.shields.io/badge/monitoring-FastAPI--Grafana--Prometheus-orange?logo=grafana)](#-полные-примеры-запуска-всех-компонентов)
 
 # Телеграм-бот заметок + напоминаний (SQLite/Mongo/Neo4j/PostgreSQL/Cassandra/Progress)
 
@@ -12,6 +12,7 @@
 - Dockerized stack, easy Compose up
 - Unit, integration, and load test coverage
 - FastAPI REST DB monitoring (see `/count/html` dashboard)
+- **Modern web frontend** with HTML5, CSS3, TypeScript for reports, search, and monitoring
 - Elasticsearch for advanced querying across all databases
 - Grafana dashboards for monitoring and reporting
 - MCP Cursor integration ready
@@ -25,6 +26,15 @@
 docker compose -f mongo.docker-compose.yml up -d
 set USE_DB_BACKEND=mongo
 python bot.py
+
+# Launch monitoring and frontend:
+uvicorn db.monitor_db:app --host 0.0.0.0 --port 8001 &
+cd frontend && python -m http.server 8000 &
+
+# Access interfaces:
+# Bot: Telegram
+# Monitoring: http://localhost:8001/count/html
+# Frontend Dashboard: http://localhost:8000
 ```
 
 ---
@@ -402,7 +412,6 @@ set USE_DB_BACKEND=mongo
 set USE_DB_BACKEND=neo4j
 set USE_DB_BACKEND=postgresql
 set USE_DB_BACKEND=cassandra
-set USE_DB_BACKEND=progress_server
 ```
 
 Для MongoDB требуется установленный и запущенный контейнер:
@@ -452,7 +461,6 @@ python report_perf.py
 | neo4j           | 16.23                    | 1.45            | 2500        |
 | postgresql      | 15.87                    | 1.32            | 2500        |
 | cassandra       | 18.45                    | 1.89            | 2500        |
-| progress_server | 18.12                    | 2.89            | 2500        |
 
 ### 3. Логирование тестов
 - Детально логируются ошибки, время вставки/чтения, статистика вставленных заметок и очистка после теста.
@@ -505,5 +513,306 @@ db.notes.find().limit(5).pretty()
 ---
 
 *monitor.py* из корня теперь legacy и НЕ используется для новых верификаций, весь мониторинг — через FastAPI.
+
+---
+
+# 🚀 Полные примеры запуска всех компонентов
+
+## 📋 Быстрый старт - пошаговые инструкции
+
+### 1. Подготовка окружения
+```bash
+# Установка зависимостей
+pip install -r requirements.txt
+
+# Создание Docker сети (один раз)
+docker network create neuroqc-net
+
+# Настройка токена бота
+set BOT_TOKEN=YOUR_BOT_TOKEN_HERE
+```
+
+### 2. Выбор и запуск базы данных
+
+#### SQLite (по умолчанию, без Docker)
+```bash
+set USE_DB_BACKEND=sqlite
+python bot.py
+```
+
+#### MongoDB
+```bash
+# Запуск MongoDB контейнера
+docker compose -f mongo.docker-compose.yml up -d
+
+# Переключение на MongoDB
+set USE_DB_BACKEND=mongo
+python bot.py
+```
+
+#### Neo4j
+```bash
+# Запуск Neo4j контейнера
+docker compose -f neo4j.docker-compose.yml up -d
+
+# Переключение на Neo4j
+set USE_DB_BACKEND=neo4j
+python bot.py
+```
+
+#### PostgreSQL
+```bash
+# Запуск PostgreSQL контейнера
+docker compose -f postgresql.docker-compose.yml up -d
+
+# Переключение на PostgreSQL
+set USE_DB_BACKEND=postgresql
+python bot.py
+```
+
+#### Cassandra
+```bash
+# Запуск Cassandra контейнера
+docker compose -f cassandra.docker-compose.yml up -d
+
+# Переключение на Cassandra
+set USE_DB_BACKEND=cassandra
+python bot.py
+```
+
+#### Progress (In-Memory)
+```bash
+# Переключение на Progress
+set USE_DB_BACKEND=progress
+python bot.py
+```
+
+### 3. Запуск мониторинга и веб-интерфейса
+
+#### FastAPI мониторинг
+```bash
+# Запуск FastAPI сервера мониторинга
+uvicorn db.monitor_db:app --host 0.0.0.0 --port 8001
+
+# Открыть в браузере:
+# http://localhost:8001/health - JSON статус
+# http://localhost:8001/count/html - HTML дашборд
+```
+
+#### Веб-фронтенд (новый)
+```bash
+# Запуск HTTP сервера для фронтенда
+cd frontend
+python -m http.server 8000
+
+# Открыть в браузере:
+# http://localhost:8000 - Полный дашборд с графиками
+```
+
+### 4. Запуск дополнительных сервисов
+
+#### Elasticsearch + Kibana
+```bash
+# Запуск Elasticsearch и Kibana
+docker compose -f elasticsearch.docker-compose.yml up -d
+
+# Доступ:
+# Elasticsearch: http://localhost:9200
+# Kibana: http://localhost:5601
+```
+
+#### Grafana + Prometheus
+```bash
+# Запуск Grafana и Prometheus
+docker compose -f grafana.docker-compose.yml up -d
+
+# Доступ:
+# Grafana: http://localhost:3000 (admin/admin)
+# Prometheus: http://localhost:9090
+```
+
+## 🧪 Тестирование
+
+### Запуск всех тестов
+```bash
+cd test
+set PYTHONPATH=..
+python test_db_backends.py
+```
+
+### Генерация отчёта производительности
+```bash
+cd test
+python report_perf.py
+# Открыть db_perf_report.html в браузере
+```
+
+### Тестирование конкретной базы данных
+```bash
+# Тест только SQLite
+set USE_DB_BACKEND=sqlite
+python test_db_backends.py
+
+# Тест только MongoDB
+set USE_DB_BACKEND=mongo
+python test_db_backends.py
+```
+
+## 🐳 Docker контейнеры
+
+### Сборка специализированных образов
+```bash
+# SQLite образ
+docker build -f dockerfiles/Dockerfile.sqlite -t tg-notes-bot:sqlite .
+
+# MongoDB образ
+docker build -f dockerfiles/Dockerfile.mongo -t tg-notes-bot:mongo .
+
+# Neo4j образ
+docker build -f dockerfiles/Dockerfile.neo4j -t tg-notes-bot:neo4j .
+
+# PostgreSQL образ
+docker build -f dockerfiles/Dockerfile.postgresql -t tg-notes-bot:postgresql .
+
+# Cassandra образ
+docker build -f dockerfiles/Dockerfile.cassandra -t tg-notes-bot:cassandra .
+
+# Progress образ
+docker build -f dockerfiles/Dockerfile.progress -t tg-notes-bot:progress .
+```
+
+### Запуск контейнеров
+```bash
+# MongoDB контейнер
+docker compose -f mongo.docker-compose.yml up -d
+docker run -p 8001:8001 --network neuroqc-net tg-notes-bot:mongo
+
+# PostgreSQL контейнер
+docker compose -f postgresql.docker-compose.yml up -d
+docker run -p 8001:8001 --network neuroqc-net tg-notes-bot:postgresql
+```
+
+## 🔧 Утилиты и скрипты
+
+### Создание тестовых данных
+```bash
+# Создание базы данных с тестовыми данными
+python create_db.py
+
+# Создание тестовых логов
+python create_test_logs.py
+
+# Очистка тестовых логов
+python clean_test_logs.py
+```
+
+### Мониторинг и анализ
+```bash
+# Запуск мониторинга (legacy)
+python monitor.py
+
+# Тестирование новых функций
+python test_new_features.py
+
+# Демонстрационные запросы к БД
+python demo_queries.py
+```
+
+## 📊 Полный стек для разработки
+
+### Запуск всех сервисов одновременно
+```bash
+# Терминал 1: База данных
+docker compose -f mongo.docker-compose.yml up -d
+
+# Терминал 2: Бот
+set USE_DB_BACKEND=mongo
+python bot.py
+
+# Терминал 3: FastAPI мониторинг
+uvicorn db.monitor_db:app --host 0.0.0.0 --port 8001
+
+# Терминал 4: Веб-фронтенд
+cd frontend
+python -m http.server 8000
+
+# Терминал 5: Elasticsearch
+docker compose -f elasticsearch.docker-compose.yml up -d
+
+# Терминал 6: Grafana
+docker compose -f grafana.docker-compose.yml up -d
+```
+
+### Проверка статуса всех сервисов
+```bash
+# Проверка Docker контейнеров
+docker ps
+
+# Проверка портов
+netstat -an | findstr :8000  # Фронтенд
+netstat -an | findstr :8001  # FastAPI
+netstat -an | findstr :27017 # MongoDB
+netstat -an | findstr :7475  # Neo4j HTTP
+netstat -an | findstr :7688  # Neo4j Bolt
+netstat -an | findstr :5432  # PostgreSQL
+netstat -an | findstr :9042  # Cassandra
+netstat -an | findstr :9200  # Elasticsearch
+netstat -an | findstr :5601  # Kibana
+netstat -an | findstr :3000  # Grafana
+netstat -an | findstr :9090  # Prometheus
+```
+
+## 🎯 Типичные сценарии использования
+
+### Сценарий 1: Быстрый старт с SQLite
+```bash
+set USE_DB_BACKEND=sqlite
+python bot.py
+# Бот работает с локальной SQLite базой
+```
+
+### Сценарий 2: Разработка с MongoDB
+```bash
+docker compose -f mongo.docker-compose.yml up -d
+set USE_DB_BACKEND=mongo
+python bot.py
+uvicorn db.monitor_db:app --host 0.0.0.0 --port 8001
+# Открыть http://localhost:8001/count/html
+```
+
+### Сценарий 3: Полный мониторинг
+```bash
+# Все сервисы
+docker compose -f mongo.docker-compose.yml up -d
+docker compose -f elasticsearch.docker-compose.yml up -d
+docker compose -f grafana.docker-compose.yml up -d
+
+# Приложения
+set USE_DB_BACKEND=mongo
+python bot.py &
+uvicorn db.monitor_db:app --host 0.0.0.0 --port 8001 &
+cd frontend && python -m http.server 8000 &
+
+# Доступ к интерфейсам:
+# Бот: Telegram
+# Мониторинг: http://localhost:8001/count/html
+# Фронтенд: http://localhost:8000
+# Grafana: http://localhost:3000
+# Kibana: http://localhost:5601
+```
+
+### Сценарий 4: Тестирование производительности
+```bash
+# Тест всех баз данных
+cd test
+set PYTHONPATH=..
+python test_db_backends.py
+
+# Генерация отчёта
+python report_perf.py
+
+# Просмотр результатов
+start db_perf_report.html
+```
 
 ---
