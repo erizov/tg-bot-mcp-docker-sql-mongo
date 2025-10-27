@@ -1,6 +1,6 @@
-[![Python](https://img.shields.io/badge/python-3.8+-blue?logo=python)](https://python.org) [![Docker](https://img.shields.io/badge/docker-ready-blue?logo=docker)](https://www.docker.com/) [![Tested DBs](https://img.shields.io/badge/DBs-SQLite--Progress--Mongo--Neo4j--ProgressServer-green?logo=mongodb)](#бэкенды-баз-данных)
+[![Python](https://img.shields.io/badge/python-3.8+-blue?logo=python)](https://python.org) [![Docker](https://img.shields.io/badge/docker-ready-blue?logo=docker)](https://www.docker.com/) [![Tested DBs](https://img.shields.io/badge/DBs-SQLite--Progress--Mongo--Neo4j--PostgreSQL--ProgressServer-green?logo=mongodb)](#бэкенды-баз-данных)
 
-# Телеграм-бот заметок + напоминаний (SQLite/Mongo/Neo4j/Progress)
+# Телеграм-бот заметок + напоминаний (SQLite/Mongo/Neo4j/PostgreSQL/Progress)
 
 **[🇷🇺 Русский README ниже]**
 
@@ -8,7 +8,7 @@
 
 ## 🚩 Features
 - Telegram bot for notes & reminders
-- Hot-swap DB: SQLite, MongoDB (Docker), Neo4j (Docker), In-memory (Progress), Progress Server
+- Hot-swap DB: SQLite, MongoDB (Docker), Neo4j (Docker), PostgreSQL (Docker), In-memory (Progress), Progress Server
 - Dockerized stack, easy Compose up
 - Unit, integration, and load test coverage
 - FastAPI REST DB monitoring (see `/count/html` dashboard)
@@ -310,6 +310,7 @@ python clean_test_logs.py
 - **Progress (In-Memory)** — RAM only, не сохраняет данные между перезапусками
 - **MongoDB** (поддерживается через docker, используется MCP и отдельные сервисы)
 - **Neo4j** (графовая БД через docker, поддерживает связи между заметками)
+- **PostgreSQL** (реляционная БД через docker, поддерживает полнотекстовый поиск)
 - **Progress Server** (HTTP API сервер для внешних систем)
 
 Переключение осуществляется переменной окружения:
@@ -318,6 +319,7 @@ set USE_DB_BACKEND=sqlite
 set USE_DB_BACKEND=progress
 set USE_DB_BACKEND=mongo
 set USE_DB_BACKEND=neo4j
+set USE_DB_BACKEND=postgresql
 set USE_DB_BACKEND=progress_server
 ```
 
@@ -329,6 +331,11 @@ docker compose -f mongo.docker-compose.yml up -d
 Для Neo4j требуется установленный и запущенный контейнер:
 ```bash
 docker compose -f neo4j.docker-compose.yml up -d
+```
+
+Для PostgreSQL требуется установленный и запущенный контейнер:
+```bash
+docker compose -f postgresql.docker-compose.yml up -d
 ```
 
 Для Progress Server требуется установленный и запущенный контейнер:
@@ -361,6 +368,7 @@ python report_perf.py
 | progress        | 12.90                    | 2.47            | 2000        |
 | mongo           | 14.65                    | 1.18            | 2500        |
 | neo4j           | 16.23                    | 1.45            | 2500        |
+| postgresql      | 15.87                    | 1.32            | 2500        |
 | progress_server | 18.12                    | 2.89            | 2500        |
 
 ### 3. Логирование тестов

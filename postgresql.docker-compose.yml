@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  postgresql:
+    image: postgres:15-alpine
+    hostname: postgresql
+    container_name: neuro-qc-postgresql
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgresql_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: notes_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8"
+    networks:
+      - neuroqc-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d notes_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+volumes:
+  postgresql_data:
+
+networks:
+  neuroqc-net:
+    external: true

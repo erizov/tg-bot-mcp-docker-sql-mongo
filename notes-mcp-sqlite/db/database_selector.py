@@ -22,6 +22,9 @@ try:
     elif USE_DB_BACKEND == "progress_server":
         from db.database_progress_server import NotesDatabaseProgressServer
         NotesDatabaseClass = NotesDatabaseProgressServer
+    elif USE_DB_BACKEND == "postgresql":
+        from db.database_postgresql import NotesDatabasePostgreSQL
+        NotesDatabaseClass = NotesDatabasePostgreSQL
     else:
         from db.database import NotesDatabase
         NotesDatabaseClass = NotesDatabase

@@ -32,6 +32,12 @@ try:
 except ImportError:
     logger.warning("Progress server backend skipped (requests not installed)")
 
+try:
+    import psycopg2  # noqa: F401
+    BACKENDS.append("postgresql")
+except ImportError:
+    logger.warning("PostgreSQL backend skipped (psycopg2 not installed)")
+
 COUNT = 500  # manageable for perf in dev
 
 
