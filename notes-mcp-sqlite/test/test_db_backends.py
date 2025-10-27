@@ -225,7 +225,7 @@ class LoadBenchmarkTest(unittest.TestCase):
             db = NotesDatabaseProgressServer()
         else:
             db = cls()
-        
+
         count = 1000
         start_time = time.perf_counter()
         for i in range(count):

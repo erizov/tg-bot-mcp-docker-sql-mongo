@@ -8,7 +8,6 @@ Uses HTTP API to communicate with a local progress server.
 import os
 import logging
 import uuid
-import json
 import requests
 from typing import Optional, List, Dict, Any
 from datetime import datetime
@@ -25,7 +24,7 @@ class NotesDatabaseProgressServer:
     Progress local server implementation of notes database.
     Uses HTTP API to communicate with a local progress server.
     """
-    
+
     def __init__(self) -> None:
         """Initialize progress server connection."""
         self.base_url = PROGRESS_SERVER_URL
@@ -34,23 +33,24 @@ class NotesDatabaseProgressServer:
             "Content-Type": "application/json",
             "Accept": "application/json"
         })
-        
+
         # Test connection
         try:
             response = self.session.get(f"{self.base_url}/health")
             if response.status_code == 200:
                 logger.info("Progress server connected: %s", PROGRESS_SERVER_URL)
             else:
-                logger.warning("Progress server health check failed: %s", response.status_code)
+                logger.warning("Progress server health check failed: %s",
+                               response.status_code)
         except requests.exceptions.RequestException as e:
             logger.error("Failed to connect to progress server: %s", e)
             raise
-    
+
     def add_note(self, title: str, content: str, due_at: Optional[str] = None) -> str:
         """Add a new note."""
         note_id = str(uuid.uuid4())
         created_at = datetime.now().isoformat()
-        
+
         data = {
             "id": note_id,
             "title": title,
@@ -58,7 +58,7 @@ class NotesDatabaseProgressServer:
             "due_at": due_at,
             "created_at": created_at
         }
-        
+
         try:
             response = self.session.post(f"{self.base_url}/notes", json=data)
             response.raise_for_status()
@@ -67,7 +67,7 @@ class NotesDatabaseProgressServer:
         except requests.exceptions.RequestException as e:
             logger.error("Failed to add note: %s", e)
             raise
-    
+
     def get_note_by_id(self, note_id: str) -> Optional[Dict[str, Any]]:
         """Get note by ID."""
         try:
@@ -81,7 +81,7 @@ class NotesDatabaseProgressServer:
         except requests.exceptions.RequestException as e:
             logger.error("Failed to get note %s: %s", note_id, e)
             raise
-    
+
     def get_all_notes(self) -> List[Dict[str, Any]]:
         """Get all notes."""
         try:
@@ -91,19 +91,21 @@ class NotesDatabaseProgressServer:
         except requests.exceptions.RequestException as e:
             logger.error("Failed to get all notes: %s", e)
             raise
-    
+
     def search_notes(self, query: str) -> List[Dict[str, Any]]:
         """Search notes by title or content."""
         try:
-            response = self.session.get(f"{self.base_url}/notes/search", params={"q": query})
+            response = self.session.get(f"{self.base_url}/notes/search",
+                                        params={"q": query})
             response.raise_for_status()
             return response.json()
         except requests.exceptions.RequestException as e:
             logger.error("Failed to search notes: %s", e)
             raise
-    
-    def update_note(self, note_id: str, title: Optional[str] = None, 
-                   content: Optional[str] = None, due_at: Optional[str] = None) -> bool:
+
+    def update_note(self, note_id: str, title: Optional[str] = None,
+                    content: Optional[str] = None,
+                    due_at: Optional[str] = None) -> bool:
         """Update note."""
         data = {}
         if title is not None:
@@ -112,17 +114,18 @@ class NotesDatabaseProgressServer:
             data["content"] = content
         if due_at is not None:
             data["due_at"] = due_at
-        
+
         if not data:
             return False
-        
+
         try:
-            response = self.session.put(f"{self.base_url}/notes/{note_id}", json=data)
+            response = self.session.put(f"{self.base_url}/notes/{note_id}",
+                                        json=data)
             return response.status_code == 200
         except requests.exceptions.RequestException as e:
             logger.error("Failed to update note %s: %s", note_id, e)
             return False
-    
+
     def delete_note(self, note_id: str) -> bool:
         """Delete note."""
         try:
@@ -131,18 +134,18 @@ class NotesDatabaseProgressServer:
         except requests.exceptions.RequestException as e:
             logger.error("Failed to delete note %s: %s", note_id, e)
             return False
-    
+
     def get_upcoming_reminders(self, hours: int = 24) -> List[Dict[str, Any]]:
         """Get upcoming reminders."""
         try:
-            response = self.session.get(f"{self.base_url}/notes/reminders", 
-                                     params={"hours": hours})
+            response = self.session.get(f"{self.base_url}/notes/reminders",
+                                        params={"hours": hours})
             response.raise_for_status()
             return response.json()
         except requests.exceptions.RequestException as e:
             logger.error("Failed to get reminders: %s", e)
             raise
-    
+
     def get_stats(self) -> Dict[str, Any]:
         """Get database statistics."""
         try:
@@ -154,7 +157,7 @@ class NotesDatabaseProgressServer:
         except requests.exceptions.RequestException as e:
             logger.error("Failed to get stats: %s", e)
             raise
-    
+
     def close(self) -> None:
         """Close database connection."""
         if self.session:

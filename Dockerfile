@@ -13,7 +13,7 @@ COPY notes-mcp-sqlite/setup/requirements.txt /app/requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Install additional dependencies for CI
-RUN pip install --no-cache-dir pymongo flake8 fastapi uvicorn pytest httpx
+RUN pip install --no-cache-dir pymongo neo4j requests flake8 fastapi uvicorn pytest httpx
 
 # Copy application code
 COPY . /app
